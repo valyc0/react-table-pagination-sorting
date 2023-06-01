@@ -17,6 +17,8 @@ const TutorialsList = () => {
   const [sortField, setSortField] = useState("");
   const [order, setOrder] = useState("asc");
 
+  const [spinner, setSpinner] = useState(false);
+
   const pageSizes = [3, 6, 9];
   const fileName = "myfile"; // here enter filename for your excel file
 
@@ -67,9 +69,10 @@ const TutorialsList = () => {
 
   const retrieveTutorials = () => {
     const params = getRequestParams(searchTitle, page, pageSize);
-
+    setSpinner(true);
     TutorialDataService.getAll(params)
       .then((response) => {
+        setSpinner(false);
         const { tutorials, totalPages } = response.data;
 
         setTutorials(tutorials);
@@ -109,11 +112,11 @@ const TutorialsList = () => {
 
   const handleExportClick = () => {
     const params = getRequestParams(searchTitle, 0, 1000000);
-
+    setSpinner(true);
     TutorialDataService.getAll(params)
       .then((response) => {
         const { tutorials } = response.data;
-
+        setSpinner(false);
         ExportToExcel.exportFile(fileName, tutorials);
 
       })
@@ -152,6 +155,7 @@ const TutorialsList = () => {
   ];
 
   return (
+
     <div className="list row">
       <div className="col-md-8">
         <div className="input-group mb-3">
@@ -174,9 +178,10 @@ const TutorialsList = () => {
         </div>
       </div>
       <div className="col-md-6">
-        <h4>Tutorials List</h4>
+        <div className="col-md-6">
+          <h4>Tutorials List</h4>
 
-
+        </div>
 
         <table className="table table-bordered table-striped">
           <thead>
@@ -238,7 +243,7 @@ const TutorialsList = () => {
         <button type="button" className="btn btn-primary" onClick={handleExportClick} ><i className="bi bi-0-square"></i>Export</button>
 
 
-        {/*   <div class="spinner-border"></div>   */}
+
 
       </div>
       <div className="col-md-6">
@@ -275,6 +280,10 @@ const TutorialsList = () => {
           <div>
             <br />
             <p>Please click on a Tutorial...</p>
+            <div className="col-md-6 d-flex align-items-center justify-content-center">
+              {spinner ? <div className="spinner-border"></div> : <div></div>}
+            </div>
+
           </div>
         )}
       </div>
