@@ -247,6 +247,9 @@ const TutorialsList = () => {
 
       </div>
       <div className="col-md-6">
+        <div className="col-md-6 d-flex align-items-center justify-content-center">
+          {spinner ? <div className="spinner-border"></div> : <div></div>}
+        </div>
         {currentTutorial ? (
           <div>
             <h4>Tutorial</h4>
@@ -280,9 +283,7 @@ const TutorialsList = () => {
           <div>
             <br />
             <p>Please click on a Tutorial...</p>
-            <div className="col-md-6 d-flex align-items-center justify-content-center">
-              {spinner ? <div className="spinner-border"></div> : <div></div>}
-            </div>
+
 
           </div>
         )}
