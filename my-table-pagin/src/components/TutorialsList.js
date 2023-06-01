@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import TutorialDataService from "../services/TutorialService";
 import { Link } from "react-router-dom";
 import Pagination from "@material-ui/lab/Pagination";
-import {ExportToExcel} from '../utils/ExportToExcel'
+import ExportToExcel from "../utils/ExportToExcel";
 
 
 const TutorialsList = () => {
@@ -106,6 +106,23 @@ const TutorialsList = () => {
       });
   };
 
+
+  const handleExportClick = () => {
+    const params = getRequestParams(searchTitle, 0, 1);
+
+    TutorialDataService.getAll(params)
+      .then((response) => {
+        const { tutorials } = response.data;
+
+        ExportToExcel.exportFile(fileName,tutorials);
+       
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+   
+  };
+
   const handlePageChange = (event, value) => {
     setPage(value);
   };
@@ -192,11 +209,11 @@ const TutorialsList = () => {
         >
           Remove All
         </button>
-        <button type="button" class="btn btn-primary"><i class="bi bi-0-square"></i>Primary</button>
-        <p>List icon: <span class="glyphicon glyphicon-list"></span></p> 
+        <button type="button" className="btn btn-primary" onClick={handleExportClick} ><i className="bi bi-0-square"></i>Export</button>
+       
       
         {/*   <div class="spinner-border"></div>   */}
-        <ExportToExcel apiData={tutorials} fileName={fileName} />
+        
       </div>
       <div className="col-md-6">
         {currentTutorial ? (
