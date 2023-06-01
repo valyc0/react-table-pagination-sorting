@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import TutorialDataService from "../services/TutorialService";
 import { Link } from "react-router-dom";
 import Pagination from "@material-ui/lab/Pagination";
+import {ExportToExcel} from '../utils/ExportToExcel'
 
 
 const TutorialsList = () => {
@@ -17,6 +18,7 @@ const TutorialsList = () => {
   const [order, setOrder] = useState("asc");
 
   const pageSizes = [3, 6, 9];
+  const fileName = "myfile"; // here enter filename for your excel file
 
   const onChangeSearchTitle = (e) => {
     const searchTitle = e.target.value;
@@ -192,7 +194,9 @@ const TutorialsList = () => {
         </button>
         <button type="button" class="btn btn-primary"><i class="bi bi-0-square"></i>Primary</button>
         <p>List icon: <span class="glyphicon glyphicon-list"></span></p> 
-        <div class="spinner-border"></div>   
+      
+        {/*   <div class="spinner-border"></div>   */}
+        <ExportToExcel apiData={tutorials} fileName={fileName} />
       </div>
       <div className="col-md-6">
         {currentTutorial ? (
