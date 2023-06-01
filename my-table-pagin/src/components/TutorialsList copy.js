@@ -2,23 +2,44 @@ import React, { useState, useEffect } from "react";
 import TutorialDataService from "../services/TutorialService";
 import { Link } from "react-router-dom";
 import Pagination from "@material-ui/lab/Pagination";
+import ExportToExcel from "../utils/ExportToExcel";
+
 
 const TutorialsList = () => {
   const [tutorials, setTutorials] = useState([]);
   const [currentTutorial, setCurrentTutorial] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(-1);
+  // const [currentIndex, setCurrentIndex] = useState(-1);
   const [searchTitle, setSearchTitle] = useState("");
 
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
   const [pageSize, setPageSize] = useState(3);
+  const [sortField, setSortField] = useState("");
+  const [order, setOrder] = useState("asc");
 
   const pageSizes = [3, 6, 9];
+  const fileName = "myfile"; // here enter filename for your excel file
 
   const onChangeSearchTitle = (e) => {
     const searchTitle = e.target.value;
     setSearchTitle(searchTitle);
   };
+
+  const getSortIcon = (accessor) => {
+    if (accessor === sortField) {
+      return order === 'asc' ? ' 🔼' :' 🔽';
+    }
+    return null;
+  };
+
+  const handleSortingChange = (accessor) => {
+    console.log("handleSortingChange:"+accessor);
+    const sortOrder =
+     accessor === sortField && order === "asc" ? "desc" : "asc";
+    setSortField(accessor);
+    setOrder(sortOrder);
+    //handleSorting(accessor, sortOrder);
+   };
 
   const getRequestParams = (searchTitle, page, pageSize) => {
     let params = {};
@@ -33,6 +54,12 @@ const TutorialsList = () => {
 
     if (pageSize) {
       params["size"] = pageSize;
+    }
+
+    if (sortField) {
+      //const sort = "`${sortField},${order}`";
+      const sort = sortField+","+order;
+      params["sort"] = sort;
     }
 
     return params;
@@ -55,7 +82,7 @@ const TutorialsList = () => {
       });
   };
 
-  useEffect(retrieveTutorials, [page, pageSize]);
+  useEffect(retrieveTutorials, [page, pageSize,sortField,order]);
 
   const refreshList = () => {
     retrieveTutorials();
@@ -77,6 +104,23 @@ const TutorialsList = () => {
       .catch((e) => {
         console.log(e);
       });
+  };
+
+
+  const handleExportClick = () => {
+    const params = getRequestParams(searchTitle, 0, 1000000);
+
+    TutorialDataService.getAll(params)
+      .then((response) => {
+        const { tutorials } = response.data;
+
+        ExportToExcel.exportFile(fileName,tutorials);
+       
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+   
   };
 
   const handlePageChange = (event, value) => {
@@ -113,6 +157,30 @@ const TutorialsList = () => {
       <div className="col-md-6">
         <h4>Tutorials List</h4>
 
+       
+
+        <table className="table table-bordered table-striped">
+          <thead>
+            <tr>
+            <th onClick={() => handleSortingChange("id")} > Employee Id  {getSortIcon('id')}  <span className="glyphicon glyphicon-chevron-up" /></th>
+            <th onClick={() => handleSortingChange("title")}> Employee title {getSortIcon('title')} </th>
+            <th> Employee description </th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+             tutorials.map((tutorial, index) =>
+                  <tr key={tutorial.id}  onClick={() => setActiveTutorial(tutorial, index)}>
+                    <td> {tutorial.id} </td>
+                    <td> {tutorial.title} </td>
+                    <td>{tutorial.description}</td>
+
+                  </tr>
+              )
+            }
+          </tbody>
+        </table>
+
         <div className="mt-3">
           {"Items per Page: "}
           <select onChange={handlePageSizeChange} value={pageSize}>
@@ -135,27 +203,17 @@ const TutorialsList = () => {
           />
         </div>
 
-        <ul className="list-group">
-          {tutorials &&
-            tutorials.map((tutorial, index) => (
-              <li
-                className={
-                  "list-group-item " + (index === currentIndex ? "active" : "")
-                }
-                onClick={() => setActiveTutorial(tutorial, index)}
-                key={index}
-              >
-                {tutorial.title}
-              </li>
-            ))}
-        </ul>
-
         <button
           className="m-3 btn btn-sm btn-danger"
           onClick={removeAllTutorials}
         >
           Remove All
         </button>
+        <button type="button" className="btn btn-primary" onClick={handleExportClick} ><i className="bi bi-0-square"></i>Export</button>
+       
+      
+        {/*   <div class="spinner-border"></div>   */}
+        
       </div>
       <div className="col-md-6">
         {currentTutorial ? (

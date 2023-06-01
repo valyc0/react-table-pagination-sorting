@@ -27,19 +27,19 @@ const TutorialsList = () => {
 
   const getSortIcon = (accessor) => {
     if (accessor === sortField) {
-      return order === 'asc' ? ' 🔼' :' 🔽';
+      return order === 'asc' ? ' 🔼' : ' 🔽';
     }
     return null;
   };
 
   const handleSortingChange = (accessor) => {
-    console.log("handleSortingChange:"+accessor);
+    console.log("handleSortingChange:" + accessor);
     const sortOrder =
-     accessor === sortField && order === "asc" ? "desc" : "asc";
+      accessor === sortField && order === "asc" ? "desc" : "asc";
     setSortField(accessor);
     setOrder(sortOrder);
     //handleSorting(accessor, sortOrder);
-   };
+  };
 
   const getRequestParams = (searchTitle, page, pageSize) => {
     let params = {};
@@ -58,7 +58,7 @@ const TutorialsList = () => {
 
     if (sortField) {
       //const sort = "`${sortField},${order}`";
-      const sort = sortField+","+order;
+      const sort = sortField + "," + order;
       params["sort"] = sort;
     }
 
@@ -82,17 +82,17 @@ const TutorialsList = () => {
       });
   };
 
-  useEffect(retrieveTutorials, [page, pageSize,sortField,order]);
+  useEffect(retrieveTutorials, [page, pageSize, sortField, order]);
 
   const refreshList = () => {
     retrieveTutorials();
     setCurrentTutorial(null);
-    setCurrentIndex(-1);
+    //setCurrentIndex(-1);
   };
 
   const setActiveTutorial = (tutorial, index) => {
     setCurrentTutorial(tutorial);
-    setCurrentIndex(index);
+    //setCurrentIndex(index);
   };
 
   const removeAllTutorials = () => {
@@ -114,13 +114,13 @@ const TutorialsList = () => {
       .then((response) => {
         const { tutorials } = response.data;
 
-        ExportToExcel.exportFile(fileName,tutorials);
-       
+        ExportToExcel.exportFile(fileName, tutorials);
+
       })
       .catch((e) => {
         console.log(e);
       });
-   
+
   };
 
   const handlePageChange = (event, value) => {
@@ -131,6 +131,25 @@ const TutorialsList = () => {
     setPageSize(event.target.value);
     setPage(1);
   };
+
+  // definizione delle colonne associate a campi oggetto
+  const columns = [
+    {
+      header: "Employee Id",
+      accessorKey: "id",
+      sortable: true,
+    },
+    {
+      header: "Employee title",
+      accessorKey: "title",
+      sortable: true,
+    },
+    {
+      header: "Employee description",
+      accessorKey: "description",
+      sortable: false,
+    },
+  ];
 
   return (
     <div className="list row">
@@ -157,25 +176,32 @@ const TutorialsList = () => {
       <div className="col-md-6">
         <h4>Tutorials List</h4>
 
-       
+
 
         <table className="table table-bordered table-striped">
           <thead>
             <tr>
-            <th onClick={() => handleSortingChange("id")} > Employee Id  {getSortIcon('id')}  <span className="glyphicon glyphicon-chevron-up" /></th>
-            <th onClick={() => handleSortingChange("title")}> Employee title {getSortIcon('title')} </th>
-            <th> Employee description </th>
+              {columns.map((column) => (
+                <th
+                  key={column.accessorKey}
+                  onClick={column.sortable ? () => handleSortingChange(column.accessorKey) : null}
+                >
+                  {column.header}  {getSortIcon(column.accessorKey)}
+                </th>
+              ))}
             </tr>
+
           </thead>
           <tbody>
             {
-             tutorials.map((tutorial, index) =>
-                  <tr key={tutorial.id}  onClick={() => setActiveTutorial(tutorial, index)}>
-                    <td> {tutorial.id} </td>
-                    <td> {tutorial.title} </td>
-                    <td>{tutorial.description}</td>
+              tutorials.map((tutorial, index) =>
+                <tr key={tutorial.id} onClick={() => setActiveTutorial(tutorial, index)}>
+                  {columns.map((column) => (
+                    <td key={column.accessorKey}>{tutorial[column.accessorKey]}</td>
+                  ))
+                  }
 
-                  </tr>
+                </tr>
               )
             }
           </tbody>
@@ -210,10 +236,10 @@ const TutorialsList = () => {
           Remove All
         </button>
         <button type="button" className="btn btn-primary" onClick={handleExportClick} ><i className="bi bi-0-square"></i>Export</button>
-       
-      
+
+
         {/*   <div class="spinner-border"></div>   */}
-        
+
       </div>
       <div className="col-md-6">
         {currentTutorial ? (
