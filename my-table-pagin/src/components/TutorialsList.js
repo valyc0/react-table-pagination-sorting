@@ -108,7 +108,7 @@ const TutorialsList = () => {
 
 
   const handleExportClick = () => {
-    const params = getRequestParams(searchTitle, 0, 1);
+    const params = getRequestParams(searchTitle, 0, 1000000);
 
     TutorialDataService.getAll(params)
       .then((response) => {
